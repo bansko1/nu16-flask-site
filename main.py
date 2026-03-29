@@ -41,7 +41,7 @@ def results():
 
 @app.route('/run/', methods=['GET'])
 def run_get():
-    with open('main.txt', 'r') as f:
+    with open('nu16-flask-site\main.py', 'r') as f:
         text = f.read()
     return render_template('form.html', text=text)
     # with open('main.txt', 'a') as f:
@@ -52,7 +52,7 @@ def run_get():
 def run_post():
     # Как получть данные формы
     text = request.form['input_text']
-    with open('main.txt', 'a') as f:
+    with open('nu16-flask-site\main.py', 'a') as f:
         f.write(f'{text}\n')
     return render_template('good.html')
 
