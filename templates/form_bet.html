@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Результат</title>
+    <title>Форма</title>
 </head>
 <body>
     <ul>
@@ -21,7 +21,16 @@
                 <li>
             <a href="/play/">4. Играть.</a>
         </li>
-    </ul>
-    <h4>Игроку {{name}} открыт счет на {{count}} единиц.</h4>
+        </ul>
+    <p>
+        Сделать ставку со счета игрока на сумму:
+    </p>    
+    <form method="post">
+    Имя - <input type="text" name="input_text">
+    Ставка - <input type="text" name="input_count">
+    Выбор (камень-1/ножницы-2/бумага-3) - <input type="text" name="input_choise">
+        <button type="submit">Играть</button>
+    </form>
+
 </body>
 </html>
