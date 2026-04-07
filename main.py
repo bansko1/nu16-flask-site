@@ -7,12 +7,13 @@ from bill_oop import Bill
 
 FILE_NAME = 'bills.json'
 FILE_HISTORY = 'histores.json'
+#name  = 'somebody'
 
 app = Flask(__name__)
 
 @app.route("/") # Главная. Описание.
 def index():
-    return render_template('index.html') #, main_data=main_data, **context)
+    return render_template('index.html')
 
 @app.route('/bill-find/', methods=['GET']) # 1.1 Форма для получения имени игрока.
 def run_get():
@@ -23,6 +24,7 @@ def run_post():
     bills = {}
     histores = {}
     # Получть данные формы
+    global name
     name = request.form['input_text']
     if os.path.exists(FILE_NAME): # Если файл существует
         with open(FILE_NAME, 'r') as f:
@@ -58,7 +60,7 @@ def run_post():
             lst = []
         else:
             lst = histores[name]
-        hist = f'{now} Игроку {name} открыт счет на {count} единиц.'
+        hist = f'{now} Игроку {name} открыт счет.'
         lst.append(hist)
         histores[name] = lst
         with open(FILE_HISTORY, 'w') as f:
@@ -66,18 +68,21 @@ def run_post():
             
     return render_template('good.html', name=name, count=count)
     
-@app.route('/bill-data/', methods=['GET']) # 1.1 Форма для получения имени игрока.
-def bill_get():
-    return render_template('form.html')
+# @app.route('/bill-data/', methods=['GET']) # 1.1 Форма для получения имени игрока.
+# def bill_get():
+#     return render_template('form.html')
 
-@app.route('/bill-data/', methods=['POST']) # 2 - Узнать сумму на счете.
+@app.route('/bill-data/', methods=['GET']) # 2 - Узнать сумму на счете.
 def bill_post():
-    name = request.form['input_text']
+    # name = request.form['input_text']
     with open(FILE_NAME, 'r') as f:
         bills = json.load(f)
     with open(FILE_HISTORY, 'r') as f:
         histores = json.load(f)
-    return render_template('bill_data.html', name=name, bills=bills, histores=histores)
+    try:
+        return render_template('bill_data.html', name=name, bills=bills, histores=histores)
+    except:
+        return render_template('info_name.html')
 
 @app.route('/bill-add/', methods=['GET']) # 1.1 Форма для получения имени игрока.
 def bill_add_get():
@@ -85,13 +90,17 @@ def bill_add_get():
 
 @app.route('/bill-add/', methods=['POST']) # 3 - Добавить сумму на счет.
 def bill_add_post():
-    name = request.form['input_text']
+    #name = request.form['input_text']
     count = int(request.form['input_count'])
     with open(FILE_NAME, 'r') as f:
         bills = json.load(f)
     with open(FILE_HISTORY, 'r') as f:
         histores = json.load(f)
-    bills[name] += count
+    try:
+        bills[name] += count
+    except:
+            return render_template('info_name.html')
+        
     with open(FILE_NAME, 'w') as f:
         json.dump(bills, f)
     now = datetime.now().strftime("%d-%m-%Y")
@@ -105,15 +114,23 @@ def bill_add_post():
     with open(FILE_HISTORY, 'w') as f:
         json.dump(histores, f)
 
-    return render_template('bill_add.html', name=name, count=count)
+    return render_template('bill_add.html', name=name, count=count)    
+    
+    # try:
+    #     return render_template('bill_add.html', name=name, count=count)
+    # except:
+    #     return render_template('info_name.html')
 
 @app.route('/play/', methods=['GET']) # 1.1 Форма для получения имени игрока.
 def play_get():
-    return render_template('form_bet.html')
+    try:
+        return render_template('form_bet.html', name=name)
+    except:
+        return render_template('info_name.html')        
 
 @app.route('/play/', methods=['POST']) # 4 - Играть.
 def play_post():
-    name = request.form['input_text']
+    #name = request.form['input_text']
     count = int(request.form['input_count'])
     choise_num = int(request.form['input_choise'])
     # Игра
@@ -128,11 +145,11 @@ def play_post():
         
     choise_comp =   randint(1,3) # Случайное число (1,2 или 3)
     if choise_comp == 1:
-        choise_c = 'Камушек'
+        choise_c = 'Камень'
     elif choise_comp == 2:
-        choise_c = 'Ножнички'
+        choise_c = 'Ножницы'
     elif choise_comp == 3:
-        choise_c = 'Бумажка'
+        choise_c = 'Бумага'
         
     with open(FILE_NAME, 'r') as f:
         bills = json.load(f)
@@ -172,6 +189,11 @@ def play_post():
         json.dump(histores, f)
     
     return render_template('play.html', name=name, count=count, choise=choise, choise_c=choise_c, result=result)
+    
+    # try:
+    #     return render_template('play.html', name=name, count=count, choise=choise, choise_c=choise_c, result=result)
+    # except:
+    #     return render_template('info_name.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
