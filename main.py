@@ -7,7 +7,6 @@ from bill_oop import Bill
 
 FILE_NAME = 'bills.json'
 FILE_HISTORY = 'histores.json'
-#name  = 'somebody'
 
 app = Flask(__name__)
 
@@ -42,7 +41,6 @@ def run_post():
             with open(FILE_NAME, 'w') as f:
                 json.dump(bills, f)
             now = datetime.now().strftime("%d-%m-%Y")
-            #print(f'Создан и открыт {bill} на {count} единиц.')
             lst = []
             hist = f'{now} Игроку {name} открыт счет на {count} единиц.'
             lst.append(hist)
@@ -67,10 +65,6 @@ def run_post():
             json.dump(histores, f)
             
     return render_template('good.html', name=name, count=count)
-    
-# @app.route('/bill-data/', methods=['GET']) # 1.1 Форма для получения имени игрока.
-# def bill_get():
-#     return render_template('form.html')
 
 @app.route('/bill-data/', methods=['GET']) # 2 - Узнать сумму на счете.
 def bill_post():
@@ -86,7 +80,10 @@ def bill_post():
 
 @app.route('/bill-add/', methods=['GET']) # 1.1 Форма для получения имени игрока.
 def bill_add_get():
-    return render_template('form_sum.html')
+    try:
+        return render_template('form_sum.html', name=name)
+    except:
+        return render_template('info_name.html')
 
 @app.route('/bill-add/', methods=['POST']) # 3 - Добавить сумму на счет.
 def bill_add_post():
@@ -116,17 +113,17 @@ def bill_add_post():
 
     return render_template('bill_add.html', name=name, count=count)    
     
-    # try:
-    #     return render_template('bill_add.html', name=name, count=count)
-    # except:
-    #     return render_template('info_name.html')
 
 @app.route('/play/', methods=['GET']) # 1.1 Форма для получения имени игрока.
 def play_get():
+    with open(FILE_NAME, 'r') as f:
+        bills = json.load(f)
     try:
-        return render_template('form_bet.html', name=name)
+        lim = bills[name]
     except:
-        return render_template('info_name.html')        
+        return render_template('info_name.html')
+          
+    return render_template('form_bet.html', name=name, lim=lim)
 
 @app.route('/play/', methods=['POST']) # 4 - Играть.
 def play_post():
@@ -190,10 +187,6 @@ def play_post():
     
     return render_template('play.html', name=name, count=count, choise=choise, choise_c=choise_c, result=result)
     
-    # try:
-    #     return render_template('play.html', name=name, count=count, choise=choise, choise_c=choise_c, result=result)
-    # except:
-    #     return render_template('info_name.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
