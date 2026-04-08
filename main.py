@@ -7,12 +7,13 @@ from bill_oop import Bill
 
 FILE_NAME = 'bills.json'
 FILE_HISTORY = 'histores.json'
+MIN = 100 # Минимальная ставка в игре
 
 app = Flask(__name__)
 
 @app.route("/") # Главная. Описание.
 def index():
-    return render_template('index.html')
+    return render_template('index.html', min=MIN)
 
 @app.route('/bill-find/', methods=['GET']) # 1.1 Форма для получения имени игрока.
 def run_get():
@@ -116,26 +117,28 @@ def bill_add_post():
 
 @app.route('/play/', methods=['GET']) # 1.1 Форма для получения имени игрока.
 def play_get():
-    min = 100
+    #min = 100
     with open(FILE_NAME, 'r') as f:
         bills = json.load(f)
     try:
         lim = bills[name]
+        if lim < MIN:
+            return render_template('info_lim.html')
     except:
         return render_template('info_name.html')
           
-    return render_template('form_bet.html', name=name, min=min, lim=lim)
+    return render_template('form_bet.html', name=name, min=MIN, lim=lim)
 
 @app.route('/play/', methods=['POST']) # 4 - Играть.
 def play_post():
-    min = 100
+    #min = 100
     #name = request.form['input_text']
     with open(FILE_NAME, 'r') as f:
         bills = json.load(f)
     lim = bills[name]
     bet = int(request.form['input_count'])
-    if bet > lim or bet < min:
-        return render_template('info_bet.html', min=min, lim=lim)
+    if bet > lim or bet < MIN:
+        return render_template('info_bet.html', min=MIN, lim=lim)
     choise_num = int(request.form['input_choise'])
     # Игра
     if choise_num == 1:
