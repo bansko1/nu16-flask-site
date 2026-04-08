@@ -116,6 +116,7 @@ def bill_add_post():
 
 @app.route('/play/', methods=['GET']) # 1.1 Форма для получения имени игрока.
 def play_get():
+    min = 100
     with open(FILE_NAME, 'r') as f:
         bills = json.load(f)
     try:
@@ -123,12 +124,18 @@ def play_get():
     except:
         return render_template('info_name.html')
           
-    return render_template('form_bet.html', name=name, lim=lim)
+    return render_template('form_bet.html', name=name, min=min, lim=lim)
 
 @app.route('/play/', methods=['POST']) # 4 - Играть.
 def play_post():
+    min = 100
     #name = request.form['input_text']
-    count = int(request.form['input_count'])
+    with open(FILE_NAME, 'r') as f:
+        bills = json.load(f)
+    lim = bills[name]
+    bet = int(request.form['input_count'])
+    if bet > lim or bet < min:
+        return render_template('info_bet.html', min=min, lim=lim)
     choise_num = int(request.form['input_choise'])
     # Игра
     if choise_num == 1:
@@ -156,10 +163,10 @@ def play_post():
     if (choise_num == 1 and choise_comp == 2)or(choise_num == 2 and choise_comp == 3)or(choise_num == 3 and choise_comp == 1):
         result = 'Победа :) Счет увеличен.'
 
-        bills[name] += count
+        bills[name] += bet
         now = datetime.now().strftime("%d-%m-%Y")
         lst = histores[name]
-        hist = f'{now} Выигрыш. Счет игрока {name} пополнен на {count} единиц.'
+        hist = f'{now} Выигрыш. Счет игрока {name} пополнен на {bet} единиц.'
         lst.append(hist)
         histores[name] = lst
         
@@ -173,10 +180,10 @@ def play_post():
         histores[name] = lst
     else:
         result = 'Проигрыш :( Ставка потеряна.'
-        bills[name] -= count
+        bills[name] -= bet
         now = datetime.now().strftime("%d-%m-%Y")
         lst = histores[name]
-        hist = f'{now} Проигрыш. Счет игрока {name} уменьшен на {count} единиц.'
+        hist = f'{now} Проигрыш. Счет игрока {name} уменьшен на {bet} единиц.'
         lst.append(hist)
         histores[name] = lst
 
@@ -185,7 +192,7 @@ def play_post():
     with open(FILE_HISTORY, 'w') as f:
         json.dump(histores, f)
     
-    return render_template('play.html', name=name, count=count, choise=choise, choise_c=choise_c, result=result)
+    return render_template('play.html', name=name, count=bet, choise=choise, choise_c=choise_c, result=result)
     
 
 if __name__ == "__main__":
